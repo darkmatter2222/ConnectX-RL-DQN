@@ -40,9 +40,9 @@ tf.compat.v1.enable_v2_behavior()
 #_collect_steps_per_iteration = 10  # @param {type:"integer"}
 _replay_buffer_max_length = 400000   # @param {type:"integer"}
 _batch_size = 64  # @param {type:"integer"}
-_learning_rate = 0.00001  # @param {type:"number"}
-_num_train_episodes = 100 # @param {type:"integer"}
-_num_eval_episodes = 10  # @param {type:"integer"}
+_learning_rate = 0.001  # @param {type:"number"}
+_num_train_episodes = 1000 # @param {type:"integer"}
+_num_eval_episodes = 100  # @param {type:"integer"}
 _num_save_episodes = 5  # @param {type:"integer"}
 _num_dump_replay_buffer_episodes = 10  # @param {type:"integer"}
 #_render_on_episode = 10  # @param {type:"integer"}
@@ -168,6 +168,7 @@ def render_history():
 
     # display image with opencv or any operation you like
     cv2.imshow("plot", img)
+    cv2.waitKey(1)
     plt.close('all')
 # collect_data(train_env, random_policy, replay_buffer, steps=100)
 

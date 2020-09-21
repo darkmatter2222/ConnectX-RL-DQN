@@ -12,23 +12,23 @@ from tf_agents.specs import array_spec
 from tf_agents.environments import wrappers
 from tf_agents.environments import suite_gym
 from tf_agents.trajectories import time_step as ts
-import random
-import scipy as sp
-import sklearn
-import cv2
-import uuid
-import matplotlib
 
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True):
+
+
+
+
+
+
+
         self._board_width = 7
         self._board_height = 6
         self._network_frame_depth = 1
-        self._channels = 3
+        self._channels = 1
 
         # initialize game
         self.environment = make("connectx")
-        self.environment.reset()
 
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=self._board_width, name='action')
@@ -40,6 +40,8 @@ class env(py_environment.PyEnvironment):
         self.state_history = [self.state] * self._network_frame_depth
 
         self.trainer = self.environment.train([None, "random"])
+
+
 
     def action_spec(self):
         return_object = self._action_spec
@@ -53,26 +55,25 @@ class env(py_environment.PyEnvironment):
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
 
-        self.environment.reset()
         obs = self.trainer.reset()
         state = self.obs_to_state(obs)
-
-        self.state_history.append(state)
-        del self.state_history[:1]
 
         return_object = ts.restart(np.array(self.state_history, dtype=np.float))
         return return_object
 
     def _step(self, action):
         self.episode_ended = False
+        int_action = int(action)
+        obs, reward, done, info = self.trainer.step(int_action)
+        if reward is None:
+            reward = 0
 
-        obs, reward, done, info = self.trainer.step(action)
         if done:
             self.episode_ended = True
 
         state = self.obs_to_state(obs)
 
-        self.state_history.append(state)
+        self.state_history.append([state])
         del self.state_history[:1]
 
         # ===return to engine===
