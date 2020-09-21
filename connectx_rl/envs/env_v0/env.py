@@ -31,7 +31,7 @@ class env(py_environment.PyEnvironment):
         self.environment.reset()
 
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=(), dtype=np.int32, minimum=0, maximum=len(self._action_def) - 1, name='action')
+            shape=(), dtype=np.int32, minimum=0, maximum=self._board_width, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(self._network_frame_depth, self._channels,  self._board_height, self._board_width), dtype=np.float,
             minimum=0.0, maximum=1.0, name='observation')
@@ -57,6 +57,8 @@ class env(py_environment.PyEnvironment):
 
     def _step(self, action):
         self.episode_ended = False
+
+        reward = 0
 
         # ===return to engine===
         if self.episode_ended:

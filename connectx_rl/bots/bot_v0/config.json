@@ -1,0 +1,33 @@
+{
+  "files": {
+    "tensorboard_logs": {
+      "base_dir":  "N:\\ConnectX-RL-DQN",
+      "SusmanServer-base_dir":  "E:\\ConnectX-RL-DQN",
+      "RedComputer-base_dir":  "D:\\ConnectX-RL-DQN",
+      "dir": "tensorboard"
+    },
+    "policy": {
+      "base_dir":  "N:\\ConnectX-RL-DQN",
+      "SusmanServer-base_dir":  "E:\\ConnectX-RL-DQN",
+      "RedComputer-base_dir":  "D:\\ConnectX-RL-DQN",
+      "save_policy": {
+        "dir": "save",
+        "name": "connectx_v0"
+      },
+      "checkpoint_policy": {
+        "dir": "checkpoint",
+        "name": "connectx_v0"
+      },
+      "images": {
+        "stills": {
+          "dir": "stills",
+          "name": "connectx_v0"
+        },
+        "gifs": {
+          "dir": "gifs",
+          "name": "connectx_v0"
+        }
+      }
+    }
+  }
+}
