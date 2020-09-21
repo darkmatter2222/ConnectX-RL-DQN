@@ -39,6 +39,8 @@ class env(py_environment.PyEnvironment):
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
 
+        self.trainer = self.environment.train([None, "random"])
+
     def action_spec(self):
         return_object = self._action_spec
         return return_object
@@ -48,9 +50,15 @@ class env(py_environment.PyEnvironment):
         return return_object
 
     def _reset(self):
-        self.environment.reset()
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
+
+        self.environment.reset()
+        obs = self.trainer.reset()
+        state = self.obs_to_state(obs)
+
+        self.state_history.append(state)
+        del self.state_history[:1]
 
         return_object = ts.restart(np.array(self.state_history, dtype=np.float))
         return return_object
@@ -58,7 +66,14 @@ class env(py_environment.PyEnvironment):
     def _step(self, action):
         self.episode_ended = False
 
-        reward = 0
+        obs, reward, done, info = self.trainer.step(action)
+        if done:
+            self.episode_ended = True
+
+        state = self.obs_to_state(obs)
+
+        self.state_history.append(state)
+        del self.state_history[:1]
 
         # ===return to engine===
         if self.episode_ended:
@@ -68,3 +83,5 @@ class env(py_environment.PyEnvironment):
             return_object = ts.transition(np.array(self.state_history, dtype=np.float), reward=reward, discount=1.0)
             return return_object
 
+    def obs_to_state(self, obs):
+        return np.reshape(obs.board, (self._board_width, self._board_height)).T
