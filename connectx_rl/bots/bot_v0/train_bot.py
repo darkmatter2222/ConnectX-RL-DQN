@@ -40,11 +40,11 @@ tf.compat.v1.enable_v2_behavior()
 #_collect_steps_per_iteration = 10  # @param {type:"integer"}
 _replay_buffer_max_length = 400000   # @param {type:"integer"}
 _batch_size = 64  # @param {type:"integer"}
-_learning_rate = 0.001  # @param {type:"number"}
+_learning_rate = 0.01  # @param {type:"number"}
 _num_train_episodes = 1000 # @param {type:"integer"}
 _num_eval_episodes = 100  # @param {type:"integer"}
 _num_save_episodes = 5  # @param {type:"integer"}
-_num_dump_replay_buffer_episodes = 10  # @param {type:"integer"}
+_num_dump_replay_buffer_episodes = 100  # @param {type:"integer"}
 #_render_on_episode = 10  # @param {type:"integer"}
 
 
@@ -66,6 +66,10 @@ _save_policy_dir = os.path.join(_config['files']['policy'][base_directory_key],
 _checkpoint_policy_dir = os.path.join(_config['files']['policy'][base_directory_key],
                                       _config['files']['policy']['checkpoint_policy']['dir'],
                                       _config['files']['policy']['checkpoint_policy']['name'])
+
+_master_truth_dir_file = os.path.join(_config['files']['policy'][base_directory_key],
+                                      _config['files']['policy']['master_truth']['dir'],
+                                      _config['files']['policy']['master_truth']['name'])
 
 # instantiate two environments. I personally don't feel this is necessary,
 # however google did it in their tutorial...
@@ -225,6 +229,11 @@ while True:
         train_checkpointer.save(_train_step_counter)
     if step % _num_dump_replay_buffer_episodes == 0:
         _replay_buffer.clear()
+    print('saving truth table')
+    f = open(_master_truth_dir_file, "w")
+    f.write(json.dumps(_train_env.pyenv._envs[0].master_truth_table))
+    f.close()
+    print(f'master truth table size = {len(_train_env.pyenv._envs[0].master_truth_table.keys())}')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
     reward_history.append(avg_return)
     loss_history.append(train_loss)

@@ -1,6 +1,7 @@
 import abc
 import tensorflow as tf
 import numpy as np
+import json
 
 from kaggle_environments import make
 from kaggle_environments.envs.halite.helpers import *
@@ -18,7 +19,8 @@ class env(py_environment.PyEnvironment):
 
 
 
-
+        self.master_truth_table = {}
+        self.last_state = None
 
 
 
@@ -57,6 +59,7 @@ class env(py_environment.PyEnvironment):
 
         obs = self.trainer.reset()
         state = self.obs_to_state(obs)
+        self.last_state = state
 
         return_object = ts.restart(np.array(self.state_history, dtype=np.float))
         return return_object
@@ -64,6 +67,7 @@ class env(py_environment.PyEnvironment):
     def _step(self, action):
         self.episode_ended = False
         int_action = int(action)
+        self.master_truth_table[str(self.last_state)] = int_action
         obs, reward, done, info = self.trainer.step(int_action)
         if reward is None:
             reward = 0
@@ -72,6 +76,7 @@ class env(py_environment.PyEnvironment):
             self.episode_ended = True
 
         state = self.obs_to_state(obs)
+        self.last_state = state
 
         self.state_history.append([state])
         del self.state_history[:1]

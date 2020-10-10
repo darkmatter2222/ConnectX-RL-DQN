@@ -18,6 +18,10 @@
         "dir": "checkpoint",
         "name": "connectx_v0"
       },
+      "master_truth": {
+        "dir": "save",
+        "name": "connectx_v0.json"
+      },
       "images": {
         "stills": {
           "dir": "stills",
