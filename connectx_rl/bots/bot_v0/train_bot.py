@@ -204,6 +204,11 @@ restore_network = True
 
 if restore_network:
     train_checkpointer.initialize_or_restore()
+    f = open(_master_truth_dir_file, "r")
+    _train_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
+    f.close()
+
+
 
 #_train_env.pyenv._envs[0].set_rendering(enabled=False)
 
