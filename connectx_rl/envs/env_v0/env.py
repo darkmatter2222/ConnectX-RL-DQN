@@ -17,7 +17,7 @@ from tf_agents.trajectories import time_step as ts
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True):
 
-
+        self.env_name = env_name
 
         self.master_truth_table = {}
         self.last_state = None
@@ -67,7 +67,9 @@ class env(py_environment.PyEnvironment):
     def _step(self, action):
         self.episode_ended = False
         int_action = int(action)
-        self.master_truth_table[str(self.last_state)] = int_action
+
+        if self.env_name == 'Testing':
+            self.master_truth_table[str(self.last_state)] = int_action
         obs, reward, done, info = self.trainer.step(int_action)
         if reward is None:
             reward = 0

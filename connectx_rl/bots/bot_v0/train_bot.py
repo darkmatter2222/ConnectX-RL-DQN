@@ -205,7 +205,7 @@ restore_network = True
 if restore_network:
     train_checkpointer.initialize_or_restore()
     f = open(_master_truth_dir_file, "r")
-    _train_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
+    _eval_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
     f.close()
 
 
@@ -236,7 +236,7 @@ while True:
         _replay_buffer.clear()
     print('saving truth table')
     f = open(_master_truth_dir_file, "w")
-    f.write(json.dumps(_train_env.pyenv._envs[0].master_truth_table))
+    f.write(json.dumps(_eval_env.pyenv._envs[0].master_truth_table))
     f.close()
     print(f'master truth table size = {len(_train_env.pyenv._envs[0].master_truth_table.keys())}')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
