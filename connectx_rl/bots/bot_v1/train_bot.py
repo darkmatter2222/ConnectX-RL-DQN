@@ -79,9 +79,20 @@ _checkpoint_policy_dir = os.path.join(_config['files']['policy'][base_directory_
                                       _config['files']['policy']['checkpoint_policy']['dir'],
                                       _config['files']['policy']['checkpoint_policy']['name'])
 
-_master_truth_dir_file = os.path.join(_config['files']['policy'][base_directory_key],
+_master_truth_dir = os.path.join(_config['files']['policy'][base_directory_key],
+                                      _config['files']['policy']['master_truth']['dir'])
+
+_master_truth_file = os.path.join(_config['files']['policy'][base_directory_key],
                                       _config['files']['policy']['master_truth']['dir'],
                                       _config['files']['policy']['master_truth']['name'])
+
+if not os.path.exists(_master_truth_dir):
+    os.makedirs(_master_truth_dir)
+
+if not os.path.exists(_master_truth_file):
+    f = open(_master_truth_file, 'w+')  # open file in append mode
+    f.write('{}')
+    f.close()
 
 # instantiate two environments. I personally don't feel this is necessary,
 # however google did it in their tutorial...
