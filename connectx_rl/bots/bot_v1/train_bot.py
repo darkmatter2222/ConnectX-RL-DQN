@@ -37,27 +37,28 @@ with open('config.json') as f:
 tf.compat.v1.enable_v2_behavior()
 
 # setting hyperparameters
-num_iterations = 1500000 # @param {type:"integer"}
+num_iterations = 150000000 # @param {type:"integer"}
 
 initial_collect_steps = 1000  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-fc_layer_params = (100,)
+fc_layer_params = (1000,)
 
-batch_size = 64  # @param {type:"integer"}
+batch_size = 128  # @param {type:"integer"}
 learning_rate = 1e-3  # @param {type:"number"}
 gamma = 0.99
 log_interval = 200  # @param {type:"integer"}
 
 num_atoms = 51  # @param {type:"integer"}
-min_q_value = -20  # @param {type:"integer"}
-max_q_value = 20  # @param {type:"integer"}
+min_q_value = -1  # @param {type:"integer"}
+max_q_value = 1  # @param {type:"integer"}
 n_step_update = 2  # @param {type:"integer"}
 
-num_eval_episodes = 10  # @param {type:"integer"}
+num_eval_episodes = 100  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
 
+_num_save_episodes = 5000
 
 reward_history = []
 loss_history = []
@@ -176,6 +177,21 @@ dataset = replay_buffer.as_dataset(
 
 iterator = iter(dataset)
 
+train_checkpointer = common.Checkpointer(
+    ckpt_dir=_checkpoint_policy_dir,
+    max_to_keep=1,
+    agent=agent,
+    policy=agent.policy,
+    replay_buffer=replay_buffer,
+    global_step=train_step_counter
+)
+
+tf_policy_saver = policy_saver.PolicySaver(agent.policy)
+
+restore_network = True
+
+if restore_network:
+    train_checkpointer.initialize_or_restore()
 
 # (Optional) Optimize by wrapping some of the code in a graph using TF function.
 agent.train = common.function(agent.train)
@@ -207,3 +223,6 @@ for _ in range(num_iterations):
     print(f'Eval Wins:{wins} Losss:{losss} Ties:{ties}')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
     returns.append(avg_return)
+  if step % _num_save_episodes == 0:
+    tf_policy_saver.save(_save_policy_dir)
+    train_checkpointer.save(train_step_counter)
