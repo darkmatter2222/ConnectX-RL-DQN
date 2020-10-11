@@ -43,6 +43,7 @@ class env(py_environment.PyEnvironment):
 
         self.trainer = self.environment.train([None, "random"])
 
+        self.episode_ended = True
 
 
     def action_spec(self):
@@ -65,19 +66,16 @@ class env(py_environment.PyEnvironment):
         return return_object
 
     def _step(self, action):
-        self.episode_ended = False
+        if self.episode_ended:
+            self.reset()
+
         int_action = int(action)
 
         if self.env_name == 'Testing':
             self.master_truth_table[str(self.last_state)] = int_action
-        obs, reward, done, info = self.trainer.step(int_action)
+        obs, reward, self.episode_ended, info = self.trainer.step(int_action)
         if reward is None:
             reward = 0
-
-        if done:
-            self.episode_ended = True
-        else:
-            reward += -0.1
 
         state = self.obs_to_state(obs)
         self.last_state = state

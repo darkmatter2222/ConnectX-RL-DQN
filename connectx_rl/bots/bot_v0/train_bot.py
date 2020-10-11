@@ -40,7 +40,7 @@ tf.compat.v1.enable_v2_behavior()
 #_collect_steps_per_iteration = 10  # @param {type:"integer"}
 _replay_buffer_max_length = 400000   # @param {type:"integer"}
 _batch_size = 64  # @param {type:"integer"}
-_learning_rate = 0.01  # @param {type:"number"}
+_learning_rate = 0.00001  # @param {type:"number"}
 _num_train_episodes = 1000 # @param {type:"integer"}
 _num_eval_episodes = 1000  # @param {type:"integer"}
 _num_save_episodes = 5  # @param {type:"integer"}
