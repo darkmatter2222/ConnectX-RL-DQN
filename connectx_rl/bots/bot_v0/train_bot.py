@@ -42,7 +42,7 @@ _replay_buffer_max_length = 400000   # @param {type:"integer"}
 _batch_size = 64  # @param {type:"integer"}
 _learning_rate = 0.01  # @param {type:"number"}
 _num_train_episodes = 1000 # @param {type:"integer"}
-_num_eval_episodes = 100  # @param {type:"integer"}
+_num_eval_episodes = 1000  # @param {type:"integer"}
 _num_save_episodes = 5  # @param {type:"integer"}
 _num_dump_replay_buffer_episodes = 100  # @param {type:"integer"}
 #_render_on_episode = 10  # @param {type:"integer"}
@@ -112,6 +112,9 @@ _random_policy = random_tf_policy.RandomTFPolicy(_train_env.time_step_spec(),
 
 def compute_avg_return(environment, policy, num_episodes=10):
     total_return = 0.0
+    wins = 0
+    losss = 0
+    ties = 0
     for _ in tqdm(range(num_episodes)):
         time_step = environment.reset()
         episode_return = 0.0
@@ -120,8 +123,16 @@ def compute_avg_return(environment, policy, num_episodes=10):
             time_step = environment.step(action_step.action)
             episode_return += time_step.reward
         total_return += episode_return
+        win_flag = environment.pyenv._envs[0].environment.state[0].reward
+        if win_flag == 1:
+            wins += 1
+        elif win_flag == -1:
+            losss += 1
+        else:
+            ties += 1
+
     avg_return = total_return / num_episodes
-    return avg_return.numpy()[0]
+    return avg_return.numpy()[0], wins, losss, ties
 
 
 _replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
@@ -228,7 +239,8 @@ while True:
     step = _agent.train_step_counter.numpy()
     print('step = {0}: loss = {1}'.format(step, train_loss))
     print('Evaulating...')
-    avg_return = compute_avg_return(_eval_env, _agent.policy, _num_eval_episodes)
+    avg_return, wins, losss, ties = compute_avg_return(_eval_env, _agent.policy, _num_eval_episodes)
+    print(f'Eval Wins:{wins} Losss:{losss} Ties:{ties}')
     returns.append(avg_return)
     if step % _num_save_episodes == 0:
         train_checkpointer.save(_train_step_counter)
