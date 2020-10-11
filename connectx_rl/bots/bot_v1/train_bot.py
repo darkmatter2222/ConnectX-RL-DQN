@@ -58,7 +58,7 @@ n_step_update = 2  # @param {type:"integer"}
 num_eval_episodes = 100  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
 
-_num_save_episodes = 5000
+_num_save_episodes = 1000
 
 reward_history = []
 loss_history = []
@@ -203,6 +203,9 @@ restore_network = True
 
 if restore_network:
     train_checkpointer.initialize_or_restore()
+    f = open(_master_truth_file, "r")
+    eval_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
+    f.close()
 
 # (Optional) Optimize by wrapping some of the code in a graph using TF function.
 agent.train = common.function(agent.train)
@@ -237,3 +240,7 @@ for _ in range(num_iterations):
   if step % _num_save_episodes == 0:
     tf_policy_saver.save(_save_policy_dir)
     train_checkpointer.save(train_step_counter)
+    print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
+    f = open(_master_truth_file, "w")
+    f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
+    f.close()
