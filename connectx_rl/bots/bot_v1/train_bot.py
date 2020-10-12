@@ -52,7 +52,7 @@ log_interval = 200  # @param {type:"integer"}
 
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -1  # @param {type:"integer"}
-max_q_value = 1  # @param {type:"integer"}
+max_q_value = 24  # @param {type:"integer"}
 n_step_update = 2  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
