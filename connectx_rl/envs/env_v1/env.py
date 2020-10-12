@@ -13,6 +13,7 @@ from tf_agents.specs import array_spec
 from tf_agents.environments import wrappers
 from tf_agents.environments import suite_gym
 from tf_agents.trajectories import time_step as ts
+from connectx_rl.bots.bot_v1.package import submission
 
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True):
@@ -21,6 +22,8 @@ class env(py_environment.PyEnvironment):
 
         self.master_truth_table = {}
         self.last_state = None
+
+        self.step_count = 0
 
 
 
@@ -62,6 +65,8 @@ class env(py_environment.PyEnvironment):
         state = self.obs_to_state(obs)
         self.last_state = state
 
+        self.step_count = 0
+
         return_object = ts.restart(np.array(self.state_history, dtype=np.float))
         return return_object
 
@@ -69,6 +74,7 @@ class env(py_environment.PyEnvironment):
         if self.episode_ended:
             self.reset()
 
+        self.step_count += 1
         int_action = int(action)
 
         if self.env_name == 'Testing':
@@ -85,6 +91,8 @@ class env(py_environment.PyEnvironment):
 
         # ===return to engine===
         if self.episode_ended:
+            if reward == 1:
+                reward = 24 - self.step_count
             return_object = ts.termination(np.array(self.state_history, dtype=np.float), reward)
             return return_object
         else:
