@@ -127,7 +127,6 @@ agent.initialize()
 
 
 def compute_avg_return(environment, policy, num_episodes=10):
-
   total_return = 0.0
   wins = 0
   losss = 0
