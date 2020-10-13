@@ -56,9 +56,9 @@ max_q_value = 24  # @param {type:"integer"}
 n_step_update = 2  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 1000  # @param {type:"integer"}
+eval_interval = 10000  # @param {type:"integer"}
 
-_num_save_episodes = 1000
+_num_save_episodes = 10000
 
 reward_history = []
 loss_history = []
@@ -235,11 +235,10 @@ for _ in range(num_iterations):
     avg_return, wins, losss, ties = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
     print(f'Eval Wins:{wins} Losss:{losss} Ties:{ties}')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
-    returns.append(avg_return)
   if step % _num_save_episodes == 0:
     tf_policy_saver.save(_save_policy_dir)
     train_checkpointer.save(train_step_counter)
-    print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
-    f = open(_master_truth_file, "w")
-    f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
-    f.close()
+    #print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
+    #f = open(_master_truth_file, "w")
+    #f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
+    #f.close()
