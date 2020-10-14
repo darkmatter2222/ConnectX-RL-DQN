@@ -13,10 +13,10 @@ from tf_agents.specs import array_spec
 from tf_agents.environments import wrappers
 from tf_agents.environments import suite_gym
 from tf_agents.trajectories import time_step as ts
-from connectx_rl.bots.bot_v1.package import submission
+from connectx_rl.bots.bot_v1.package import connectxv1
 
 class env(py_environment.PyEnvironment):
-    def __init__(self, env_name, render_me=True):
+    def __init__(self, env_name, render_me=True, enemy='random'):
 
         self.env_name = env_name
 
@@ -45,12 +45,11 @@ class env(py_environment.PyEnvironment):
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
 
-        if self.env_name == 'TestingWithSmarts':
-            my_agent_name = 'submission'
-            self.environment.agents[my_agent_name] = submission.my_agent
-            self.trainer = self.environment.train([None, my_agent_name])
-        else:
-            self.trainer = self.environment.train([None, "random"])
+        if enemy != 'random':
+            if enemy == 'connectxv1':
+                self.environment.agents[enemy] = connectxv1.my_agent
+
+        self.trainer = self.environment.train([None, enemy])
 
         self.episode_ended = True
 
