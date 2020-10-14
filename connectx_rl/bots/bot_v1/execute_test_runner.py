@@ -57,8 +57,13 @@ _master_truth_file = os.path.join(_config['files']['policy'][base_directory_key]
                                       _config['files']['policy']['master_truth']['dir'],
                                       _config['files']['policy']['master_truth']['name'])
 
+if not os.path.exists(_master_truth_dir):
+    os.makedirs(_master_truth_dir)
 
-
+if not os.path.exists(_master_truth_file):
+    f = open(_master_truth_file, 'w+')  # open file in append mode
+    f.write('{}')
+    f.close()
 
 # set tensorflow compatibility
 tf.compat.v1.enable_v2_behavior()
@@ -87,7 +92,7 @@ eval_interval = 1000  # @param {type:"integer"}
 
 _num_save_episodes = 1000
 
-_eval_py_env = env(env_name='Testing', render_me=True)
+_eval_py_env = env(env_name='Testing')
 
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
 
