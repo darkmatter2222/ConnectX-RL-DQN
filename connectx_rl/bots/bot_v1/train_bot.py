@@ -58,7 +58,7 @@ max_q_value = 24  # @param {type:"integer"}
 n_step_update = 2  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 10000  # @param {type:"integer"}
+eval_interval = 1000  # @param {type:"integer"}
 
 _num_save_episodes = 10000
 
@@ -98,8 +98,8 @@ if not os.path.exists(_master_truth_file):
 
 # instantiate two environments. I personally don't feel this is necessary,
 # however google did it in their tutorial...
-_train_py_env = env(env_name='Training')
-_eval_py_env = env(env_name='Testing')
+_train_py_env = env(env_name='Training', enemy='connectxv1')
+_eval_py_env = env(env_name='Testing', enemy='connectxv1')
 
 train_env = tf_py_environment.TFPyEnvironment(_train_py_env)
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
