@@ -119,5 +119,9 @@ def compute_avg_return(environment, policy, num_episodes=10):
 for _ in range(num_iterations):
     avg_return, wins, losss, ties = compute_avg_return(eval_env, policy, num_eval_episodes)
     print(f'Eval Wins:{wins} Losss:{losss} Ties:{ties}')
+    print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
+    f = open(_master_truth_file, "w")
+    f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
+    f.close()
     #print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
     #returns.append(avg_return)

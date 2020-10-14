@@ -43,6 +43,8 @@ initial_collect_steps = 1000  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
+
+
 fc_layer_params = (1000,)
 
 batch_size = 128  # @param {type:"integer"}

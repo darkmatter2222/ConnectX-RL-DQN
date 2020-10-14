@@ -25,6 +25,7 @@ class env(py_environment.PyEnvironment):
 
         self.step_count = 0
 
+        self.state_action_history = {}
 
 
         self._board_width = 7
@@ -44,7 +45,12 @@ class env(py_environment.PyEnvironment):
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
 
-        self.trainer = self.environment.train([None, "random"])
+        if self.env_name == 'TestingWithSmarts':
+            my_agent_name = 'submission'
+            self.environment.agents[my_agent_name] = submission.my_agent
+            self.trainer = self.environment.train([None, my_agent_name])
+        else:
+            self.trainer = self.environment.train([None, "random"])
 
         self.episode_ended = True
 
@@ -60,6 +66,7 @@ class env(py_environment.PyEnvironment):
     def _reset(self):
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
+        self.state_action_history = {}
 
         obs = self.trainer.reset()
         state = self.obs_to_state(obs)
@@ -78,7 +85,7 @@ class env(py_environment.PyEnvironment):
         int_action = int(action)
 
         if self.env_name == 'Testing':
-            self.master_truth_table[str(self.last_state)] = int_action
+            self.state_action_history[str(self.last_state)]  = int_action
         obs, reward, self.episode_ended, info = self.trainer.step(int_action)
         if reward is None:
             reward = 0
@@ -93,6 +100,9 @@ class env(py_environment.PyEnvironment):
         if self.episode_ended:
             if reward == 1:
                 reward = 24 - self.step_count
+                if self.env_name == 'Testing':
+                    for state in self.state_action_history:
+                        self.master_truth_table[state] = self.state_action_history[state]
             return_object = ts.termination(np.array(self.state_history, dtype=np.float), reward)
             return return_object
         else:
