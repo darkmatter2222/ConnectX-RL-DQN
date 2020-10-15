@@ -2,6 +2,7 @@ import abc
 import tensorflow as tf
 import numpy as np
 import json
+import random
 
 from kaggle_environments import make
 from kaggle_environments.envs.halite.helpers import *
@@ -19,12 +20,11 @@ class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True, enemy='random'):
 
         self.env_name = env_name
-
         self.master_truth_table = {}
         self.last_state = None
 
         self.step_count = 0
-
+        self.enemy = enemy
         self.state_action_history = {}
 
 
@@ -49,7 +49,11 @@ class env(py_environment.PyEnvironment):
             if enemy == 'connectxv1':
                 self.environment.agents[enemy] = connectxv1.my_agent
 
-        self.trainer = self.environment.train([None, enemy])
+        if random.choice(range(1)) == 0:
+            self.trainer = self.environment.train([None, enemy])
+        else:
+            self.trainer = self.environment.train([enemy, None])
+
 
         self.episode_ended = True
 
@@ -66,6 +70,11 @@ class env(py_environment.PyEnvironment):
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
         self.state_action_history = {}
+
+        if random.choice(range(2)) == 0:
+            self.trainer = self.environment.train([None, self.enemy])
+        else:
+            self.trainer = self.environment.train([self.enemy, None])
 
         obs = self.trainer.reset()
         state = self.obs_to_state(obs)
@@ -109,4 +118,4 @@ class env(py_environment.PyEnvironment):
             return return_object
 
     def obs_to_state(self, obs):
-        return np.reshape(obs.board, (self._board_width, self._board_height)).T
+        return np.reshape(obs['board'], (self._board_width, self._board_height)).T
