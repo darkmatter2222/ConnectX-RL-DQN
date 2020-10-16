@@ -30,7 +30,7 @@ f = open('package//submission_template.py', "r")
 sub_template = f.read()
 f.close()
 
-f = open('package//connectxv1.py', "w")
+f = open('package//submission.py', "w")
 f.write(sub_template.replace("{REPLACEME}", payload))
 f.close()
 
