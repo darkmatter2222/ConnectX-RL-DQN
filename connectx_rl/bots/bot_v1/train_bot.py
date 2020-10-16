@@ -143,7 +143,8 @@ def compute_avg_return(environment, policy, num_episodes=10):
       time_step = environment.step(action_step.action)
       episode_return += time_step.reward
     total_return += episode_return
-    win_flag = environment.pyenv._envs[0].environment.state[0].reward
+    state_pos = environment.pyenv._envs[0].state_pos
+    win_flag = environment.pyenv._envs[0].environment.state[state_pos].reward
     if win_flag == 1:
         wins += 1
     elif win_flag == -1:

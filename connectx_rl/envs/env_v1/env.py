@@ -27,6 +27,7 @@ class env(py_environment.PyEnvironment):
         self.enemy = enemy
         self.state_action_history = {}
 
+        self.state_pos = 0
 
         self._board_width = 7
         self._board_height = 6
@@ -34,7 +35,7 @@ class env(py_environment.PyEnvironment):
         self._channels = 1
 
         # initialize game
-        self.environment = make("connectx")
+        self.new_environment()
 
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=self._board_width, name='action')
@@ -44,16 +45,6 @@ class env(py_environment.PyEnvironment):
 
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
-
-        if enemy != 'random':
-            if enemy == 'connectxv1':
-                self.environment.agents[enemy] = connectxv1.my_agent
-
-        if random.choice(range(1)) == 0:
-            self.trainer = self.environment.train([None, enemy])
-        else:
-            self.trainer = self.environment.train([enemy, None])
-
 
         self.episode_ended = True
 
@@ -71,10 +62,7 @@ class env(py_environment.PyEnvironment):
         self.state_history = [self.state] * self._network_frame_depth
         self.state_action_history = {}
 
-        if random.choice(range(2)) == 0:
-            self.trainer = self.environment.train([None, self.enemy])
-        else:
-            self.trainer = self.environment.train([self.enemy, None])
+        self.new_environment()
 
         obs = self.trainer.reset()
         state = self.obs_to_state(obs)
@@ -119,3 +107,16 @@ class env(py_environment.PyEnvironment):
 
     def obs_to_state(self, obs):
         return np.reshape(obs['board'], (self._board_width, self._board_height)).T
+
+    def new_environment(self):
+        self.environment = make("connectx")
+        if self.enemy != 'random':
+            if self.enemy == 'connectxv1':
+                self.environment.agents[self.enemy] = connectxv1.my_agent
+
+        if random.choice(range(2)) == 0:
+            self.trainer = self.environment.train([None, self.enemy])
+            self.state_pos = 0
+        else:
+            self.trainer = self.environment.train([self.enemy, None])
+            self.state_pos = 1
