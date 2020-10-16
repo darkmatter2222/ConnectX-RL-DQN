@@ -130,9 +130,22 @@ agent.initialize()
 
 def compute_avg_return(environment, policy, num_episodes=10):
   total_return = 0.0
-  wins = 0
-  losss = 0
-  ties = 0
+
+  results = {
+      'win': {
+          'first': 0,
+          'second': 0
+      },
+      'loss': {
+          'first': 0,
+          'second': 0
+      },
+      'tie': {
+          'first': 0,
+          'second': 0
+      }
+  }
+
   for _ in range(num_episodes):
 
     time_step = environment.reset()
@@ -145,15 +158,24 @@ def compute_avg_return(environment, policy, num_episodes=10):
     total_return += episode_return
     state_pos = environment.pyenv._envs[0].state_pos
     win_flag = environment.pyenv._envs[0].environment.state[state_pos].reward
-    if win_flag == 1:
-        wins += 1
-    elif win_flag == -1:
-        losss += 1
-    else:
-        ties += 1
+
+    if state_pos == 0:
+        if win_flag == 1:
+            results['win']['first'] += 1
+        elif win_flag == -1:
+            results['loss']['first'] += 1
+        else:
+            results['tie']['first'] += 1
+    elif state_pos == 1:
+        if win_flag == 1:
+            results['win']['second'] += 1
+        elif win_flag == -1:
+            results['loss']['second'] += 1
+        else:
+            results['tie']['second'] += 1
 
   avg_return = total_return / num_episodes
-  return avg_return.numpy()[0], wins, losss, ties
+  return avg_return.numpy()[0], results
 
 
 random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
@@ -235,8 +257,15 @@ for _ in range(num_iterations):
     print('step = {0}: loss = {1}'.format(step, train_loss.loss))
 
   if step % eval_interval == 0:
-    avg_return, wins, losss, ties = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
-    print(f'Eval Wins:{wins} Losss:{losss} Ties:{ties}')
+    avg_return, results = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+    print(f'Eval Going First '
+          f'Wins:{results["win"]["first"]} '
+          f'Losss:{results["loss"]["first"]} '
+          f'Ties:{results["tie"]["first"]} '
+          f' Going Second '
+          f'Wins:{results["win"]["second"]} '
+          f'Losss:{results["loss"]["second"]} '
+          f'Ties:{results["tie"]["second"]} ')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
   if step % _num_save_episodes == 0:
     tf_policy_saver.save(_save_policy_dir)
