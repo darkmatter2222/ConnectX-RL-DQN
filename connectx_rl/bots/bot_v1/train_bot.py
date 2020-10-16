@@ -43,7 +43,8 @@ initial_collect_steps = 1000  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-
+reward_history = []
+loss_history = []
 
 fc_layer_params = (1000,)
 
@@ -177,6 +178,37 @@ def compute_avg_return(environment, policy, num_episodes=10):
   avg_return = total_return / num_episodes
   return avg_return.numpy()[0], results
 
+def moving_average(x, w):
+    return np.convolve(x, np.ones(w), 'valid') / w
+
+def smooth(y, box_pts):
+    box = np.ones(box_pts)/box_pts
+    y_smooth = np.convolve(y, box, mode='same')
+    return y_smooth
+
+def render_history():
+    figure, axes = plt.subplots(2)
+    canvas = FigureCanvas(figure)
+
+    axes[0].plot(reward_history, 'red')
+    axes[0].plot(smooth(reward_history, 4), 'orange')
+    axes[0].plot(smooth(reward_history, 8), 'yellow')
+    axes[0].plot(smooth(reward_history, 16), 'green')
+    axes[0].plot(smooth(reward_history, 32), 'blue')
+    axes[0].plot(smooth(reward_history, 64), 'purple')
+    canvas.draw()
+    image = np.fromstring(canvas.tostring_rgb(), dtype='uint8')
+
+    img = image.reshape(canvas.get_width_height()[::-1] + (3,))
+
+    # img is rgb, convert to opencv's default bgr
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+    # display image with opencv or any operation you like
+    cv2.imshow("plot", img)
+    cv2.waitKey(1)
+    plt.close('all')
+# collect_data(train_env, random_policy, replay_buffer, steps=100)
 
 random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
                                                 train_env.action_spec())
@@ -258,6 +290,7 @@ for _ in range(num_iterations):
 
   if step % eval_interval == 0:
     avg_return, results = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+    reward_history.append(avg_return)
     print(f'Eval Going First '
           f'Wins:{results["win"]["first"]} '
           f'Losss:{results["loss"]["first"]} '
@@ -267,6 +300,7 @@ for _ in range(num_iterations):
           f'Losss:{results["loss"]["second"]} '
           f'Ties:{results["tie"]["second"]} ')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
+    render_history()
   if step % _num_save_episodes == 0:
     tf_policy_saver.save(_save_policy_dir)
     train_checkpointer.save(train_step_counter)

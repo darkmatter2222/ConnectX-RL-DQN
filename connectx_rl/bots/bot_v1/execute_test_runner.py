@@ -99,31 +99,64 @@ eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
 policy = tf.saved_model.load(_save_policy_dir)
 
 def compute_avg_return(environment, policy, num_episodes=10):
-    total_return = 0.0
-    wins = 0
-    losss = 0
-    ties = 0
-    for _ in range(num_episodes):
-        time_step = environment.reset()
-        episode_return = 0.0
-        while not time_step.is_last():
-            action_step = policy.action(time_step)
-            time_step = environment.step(action_step.action)
-            episode_return += time_step.reward
-        total_return += episode_return
-        win_flag = environment.pyenv._envs[0].environment.state[0].reward
+  total_return = 0.0
+
+  results = {
+      'win': {
+          'first': 0,
+          'second': 0
+      },
+      'loss': {
+          'first': 0,
+          'second': 0
+      },
+      'tie': {
+          'first': 0,
+          'second': 0
+      }
+  }
+
+  for _ in range(num_episodes):
+
+    time_step = environment.reset()
+    episode_return = 0.0
+
+    while not time_step.is_last():
+      action_step = policy.action(time_step)
+      time_step = environment.step(action_step.action)
+      episode_return += time_step.reward
+    total_return += episode_return
+    state_pos = environment.pyenv._envs[0].state_pos
+    win_flag = environment.pyenv._envs[0].environment.state[state_pos].reward
+
+    if state_pos == 0:
         if win_flag == 1:
-            wins += 1
+            results['win']['first'] += 1
         elif win_flag == -1:
-            losss += 1
+            results['loss']['first'] += 1
         else:
-            ties += 1
-    avg_return = total_return / num_episodes
-    return avg_return.numpy()[0], wins, losss, ties
+            results['tie']['first'] += 1
+    elif state_pos == 1:
+        if win_flag == 1:
+            results['win']['second'] += 1
+        elif win_flag == -1:
+            results['loss']['second'] += 1
+        else:
+            results['tie']['second'] += 1
+
+  avg_return = total_return / num_episodes
+  return avg_return.numpy()[0], results
 
 for _ in range(num_iterations):
-    avg_return, wins, losss, ties = compute_avg_return(eval_env, policy, num_eval_episodes)
-    print(f'Eval Wins:{wins} Losss:{losss} Ties:{ties}')
+    avg_return, results = compute_avg_return(eval_env, policy, num_eval_episodes)
+    print(f'Eval Going First '
+          f'Wins:{results["win"]["first"]} '
+          f'Losss:{results["loss"]["first"]} '
+          f'Ties:{results["tie"]["first"]} '
+          f' Going Second '
+          f'Wins:{results["win"]["second"]} '
+          f'Losss:{results["loss"]["second"]} '
+          f'Ties:{results["tie"]["second"]} ')
     print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
     f = open(_master_truth_file, "w")
     f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
