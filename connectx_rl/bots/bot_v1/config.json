@@ -19,8 +19,11 @@
         "name": "connectx_v1"
       },
       "master_truth": {
-        "dir": "save",
+        "dir": "save\\master-truth",
         "name": "connectx_v1.json"
+      },
+      "executable_bots": {
+        "dir": "save\\executable-bots"
       },
       "images": {
         "stills": {

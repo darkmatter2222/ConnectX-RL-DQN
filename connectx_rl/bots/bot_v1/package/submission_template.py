@@ -12,6 +12,8 @@ def my_agent(observation, configuration):
     
     if str(obs) in master_truth_table:
         this_choice = master_truth_table[str(obs)]
+        #print('chosen')
     else:
         this_choice = choice([c for c in range(_board_width) if observation.board[c] == 0])
+        #print('random')
     return this_choice
