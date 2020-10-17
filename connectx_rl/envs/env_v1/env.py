@@ -14,7 +14,7 @@ from tf_agents.specs import array_spec
 from tf_agents.environments import wrappers
 from tf_agents.environments import suite_gym
 from tf_agents.trajectories import time_step as ts
-from connectx_rl.bots.bot_v1.package import connectxv1
+
 
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True, enemy='random'):
