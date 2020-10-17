@@ -161,7 +161,7 @@ def compute_avg_return(environment, policy, num_episodes=10):
     state_pos = environment.pyenv._envs[0].state_pos
     win_flag = environment.pyenv._envs[0].environment.state[state_pos].reward
     chosen_enemy = environment.pyenv._envs[0].chosen_enemy
-    if _ in enemy_history:
+    if chosen_enemy in enemy_history:
         enemy_history[chosen_enemy] += 1
     else:
         enemy_history[chosen_enemy] = 1
