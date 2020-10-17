@@ -36,6 +36,7 @@ _executable_bots_dir = os.path.join(_config['files']['policy'][base_directory_ke
 sys.path.append(os.path.abspath(_executable_bots_dir))
 import submission
 import submissionv2
+import submissionv3
 
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True, enemy=['random']):
@@ -136,10 +137,11 @@ class env(py_environment.PyEnvironment):
         self.environment = make("connectx")
         self.environment.agents['submission'] = submission.my_agent
         self.environment.agents['submissionv2'] = submissionv2.my_agent
+        self.environment.agents['submissionv3'] = submissionv3.my_agent
 
         self.chosen_enemy = random.choice(self.enemy)
 
-        if random.choice(range(2)) == 0:
+        if random.choice(range(3)) == 0:
             self.trainer = self.environment.train([None, self.chosen_enemy])
             self.state_pos = 0
         else:
