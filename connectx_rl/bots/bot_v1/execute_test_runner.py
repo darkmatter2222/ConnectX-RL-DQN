@@ -60,11 +60,6 @@ _master_truth_file = os.path.join(_config['files']['policy'][base_directory_key]
 if not os.path.exists(_master_truth_dir):
     os.makedirs(_master_truth_dir)
 
-if not os.path.exists(_master_truth_file):
-    f = open(_master_truth_file, 'w+')  # open file in append mode
-    f.write('{}')
-    f.close()
-
 # set tensorflow compatibility
 tf.compat.v1.enable_v2_behavior()
 
@@ -98,6 +93,15 @@ eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
 
 policy = tf.saved_model.load(_save_policy_dir)
 
+if not os.path.exists(_master_truth_file):
+    f = open(_master_truth_file, 'w+')  # open file in append mode
+    f.write('{}')
+    f.close()
+else:
+    f = open(_master_truth_file, 'r')  # open file in append mode
+    eval_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
+    f.close()
+
 def compute_avg_return(environment, policy, num_episodes=10):
   total_return = 0.0
 
@@ -115,6 +119,7 @@ def compute_avg_return(environment, policy, num_episodes=10):
           'second': 0
       }
   }
+  enemy_history = {}
 
   for _ in range(num_episodes):
 
@@ -128,6 +133,11 @@ def compute_avg_return(environment, policy, num_episodes=10):
     total_return += episode_return
     state_pos = environment.pyenv._envs[0].state_pos
     win_flag = environment.pyenv._envs[0].environment.state[state_pos].reward
+    chosen_enemy = environment.pyenv._envs[0].chosen_enemy
+    if chosen_enemy in enemy_history:
+        enemy_history[chosen_enemy] += 1
+    else:
+        enemy_history[chosen_enemy] = 1
 
     if state_pos == 0:
         if win_flag == 1:
@@ -145,10 +155,10 @@ def compute_avg_return(environment, policy, num_episodes=10):
             results['tie']['second'] += 1
 
   avg_return = total_return / num_episodes
-  return avg_return.numpy()[0], results
+  return avg_return.numpy()[0], results, enemy_history
 
 for _ in range(num_iterations):
-    avg_return, results = compute_avg_return(eval_env, policy, num_eval_episodes)
+    avg_return, results, enemy_history = compute_avg_return(eval_env, policy, num_eval_episodes)
     print(f'Eval Going First '
           f'Wins:{results["win"]["first"]} '
           f'Losss:{results["loss"]["first"]} '
@@ -156,7 +166,9 @@ for _ in range(num_iterations):
           f' Going Second '
           f'Wins:{results["win"]["second"]} '
           f'Losss:{results["loss"]["second"]} '
-          f'Ties:{results["tie"]["second"]} ')
+          f'Ties:{results["tie"]["second"]} '
+          f' Enemy History '
+          f'{enemy_history}')
     print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
     f = open(_master_truth_file, "w")
     f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
