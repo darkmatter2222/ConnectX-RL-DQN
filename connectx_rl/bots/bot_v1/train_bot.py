@@ -99,8 +99,8 @@ if not os.path.exists(_master_truth_file):
 
 # instantiate two environments. I personally don't feel this is necessary,
 # however google did it in their tutorial...
-_train_py_env = env(env_name='Training', enemy='random')
-_eval_py_env = env(env_name='Testing', enemy='random')
+_train_py_env = env(env_name='Training', enemy=['random', 'submission'])
+_eval_py_env = env(env_name='Testing', enemy=['random', 'submission'])
 
 train_env = tf_py_environment.TFPyEnvironment(_train_py_env)
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
@@ -146,6 +146,7 @@ def compute_avg_return(environment, policy, num_episodes=10):
           'second': 0
       }
   }
+  enemy_history = {}
 
   for _ in range(num_episodes):
 
@@ -159,6 +160,11 @@ def compute_avg_return(environment, policy, num_episodes=10):
     total_return += episode_return
     state_pos = environment.pyenv._envs[0].state_pos
     win_flag = environment.pyenv._envs[0].environment.state[state_pos].reward
+    chosen_enemy = environment.pyenv._envs[0].chosen_enemy
+    if _ in enemy_history:
+        enemy_history[chosen_enemy] += 1
+    else:
+        enemy_history[chosen_enemy] = 1
 
     if state_pos == 0:
         if win_flag == 1:
@@ -176,7 +182,7 @@ def compute_avg_return(environment, policy, num_episodes=10):
             results['tie']['second'] += 1
 
   avg_return = total_return / num_episodes
-  return avg_return.numpy()[0], results
+  return avg_return.numpy()[0], results, enemy_history
 
 def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'valid') / w
@@ -289,7 +295,7 @@ for _ in range(num_iterations):
     print('step = {0}: loss = {1}'.format(step, train_loss.loss))
 
   if step % eval_interval == 0:
-    avg_return, results = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+    avg_return, results, enemy_history = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
     reward_history.append(avg_return)
     print(f'Eval Going First '
           f'Wins:{results["win"]["first"]} '
@@ -298,7 +304,9 @@ for _ in range(num_iterations):
           f' Going Second '
           f'Wins:{results["win"]["second"]} '
           f'Losss:{results["loss"]["second"]} '
-          f'Ties:{results["tie"]["second"]} ')
+          f'Ties:{results["tie"]["second"]} '
+          f' Enemy History '
+          f'{enemy_history}')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
     render_history()
   if step % _num_save_episodes == 0:

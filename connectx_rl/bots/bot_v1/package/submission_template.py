@@ -8,8 +8,8 @@ def my_agent(observation, configuration):
     obs = np.reshape(observation.board, (_board_width, _board_height)).T
     if str(obs) in master_truth_table:
         this_choice = master_truth_table[str(obs)]
-        print('chosen')
+        #print('chosen')
     else:
         this_choice = choice([c for c in range(_board_width) if observation.board[c] == 0])
-        print('random')
+        #print('random')
     return this_choice

@@ -14,10 +14,30 @@ from tf_agents.specs import array_spec
 from tf_agents.environments import wrappers
 from tf_agents.environments import suite_gym
 from tf_agents.trajectories import time_step as ts
+import sys, os
+import json
+import socket
 
+# loading configuration...
+print('loading configuration...')
+_config = {}
+with open('config.json') as f:
+    _config = json.load(f)
+
+host_name = socket.gethostname()
+base_directory_key = 'base_dir'
+target = f'{host_name}-base_dir'
+if target in _config['files']['policy']:
+    base_directory_key = target
+
+_executable_bots_dir = os.path.join(_config['files']['policy'][base_directory_key],
+                                    _config['files']['policy']['executable_bots']['dir'])
+
+sys.path.append(os.path.abspath(_executable_bots_dir))
+import submission
 
 class env(py_environment.PyEnvironment):
-    def __init__(self, env_name, render_me=True, enemy='random'):
+    def __init__(self, env_name, render_me=True, enemy=['random']):
 
         self.env_name = env_name
         self.master_truth_table = {}
@@ -26,6 +46,7 @@ class env(py_environment.PyEnvironment):
         self.step_count = 0
         self.enemy = enemy
         self.state_action_history = {}
+        self.enemy_history = {}
 
         self.state_pos = 0
 
@@ -49,6 +70,7 @@ class env(py_environment.PyEnvironment):
         self.episode_ended = True
 
 
+
     def action_spec(self):
         return_object = self._action_spec
         return return_object
@@ -61,6 +83,7 @@ class env(py_environment.PyEnvironment):
         self.state = np.zeros([self._channels,  self._board_height, self._board_width])
         self.state_history = [self.state] * self._network_frame_depth
         self.state_action_history = {}
+        self.chosen_enemy = ''
 
         self.new_environment()
 
@@ -110,13 +133,13 @@ class env(py_environment.PyEnvironment):
 
     def new_environment(self):
         self.environment = make("connectx")
-        if self.enemy != 'random':
-            if self.enemy == 'connectxv1':
-                self.environment.agents[self.enemy] = connectxv1.my_agent
+        self.environment.agents['submission'] = submission.my_agent
+
+        self.chosen_enemy = random.choice(self.enemy)
 
         if random.choice(range(2)) == 0:
-            self.trainer = self.environment.train([None, self.enemy])
+            self.trainer = self.environment.train([None, self.chosen_enemy])
             self.state_pos = 0
         else:
-            self.trainer = self.environment.train([self.enemy, None])
+            self.trainer = self.environment.train([self.chosen_enemy, None])
             self.state_pos = 1
