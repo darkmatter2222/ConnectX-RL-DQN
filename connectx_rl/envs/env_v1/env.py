@@ -17,23 +17,11 @@ from tf_agents.trajectories import time_step as ts
 import sys, os
 import json
 import socket
+from connectx_rl.bots.bot_v1.helpers import helpers
 
-# loading configuration...
-print('loading configuration...')
-_config = {}
-with open('config.json') as f:
-    _config = json.load(f)
+_config = helpers.load_configuration()
 
-host_name = socket.gethostname()
-base_directory_key = 'base_dir'
-target = f'{host_name}-base_dir'
-if target in _config['files']['policy']:
-    base_directory_key = target
-
-_executable_bots_dir = os.path.join(_config['files']['policy'][base_directory_key],
-                                    _config['files']['policy']['executable_bots']['dir'])
-
-sys.path.append(os.path.abspath(_executable_bots_dir))
+sys.path.append(os.path.abspath(_config['executable_bots_dir']))
 import submissionv4
 import submissionv5
 
