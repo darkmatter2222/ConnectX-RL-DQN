@@ -25,11 +25,7 @@ import socket
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-# loading configuration...
-print('loading configuration...')
-_config = {}
-with open('config.json') as f:
-    _config = json.load(f)
+_config = helpers.load_configuration()
 
 # set tensorflow compatibility
 tf.compat.v1.enable_v2_behavior()
@@ -64,34 +60,11 @@ _num_save_episodes = 10000
 reward_history = []
 loss_history = []
 
-# build policy directories
-host_name = socket.gethostname()
-base_directory_key = 'base_dir'
-target = f'{host_name}-base_dir'
-if target in _config['files']['policy']:
-    base_directory_key = target
+if not os.path.exists(_config['master_truth_dir']):
+    os.makedirs(_config['master_truth_dir'])
 
-
-_save_policy_dir = os.path.join(_config['files']['policy'][base_directory_key],
-                                _config['files']['policy']['save_policy']['dir'],
-                                _config['files']['policy']['save_policy']['name'])
-
-_checkpoint_policy_dir = os.path.join(_config['files']['policy'][base_directory_key],
-                                      _config['files']['policy']['checkpoint_policy']['dir'],
-                                      _config['files']['policy']['checkpoint_policy']['name'])
-
-_master_truth_dir = os.path.join(_config['files']['policy'][base_directory_key],
-                                      _config['files']['policy']['master_truth']['dir'])
-
-_master_truth_file = os.path.join(_config['files']['policy'][base_directory_key],
-                                      _config['files']['policy']['master_truth']['dir'],
-                                      _config['files']['policy']['master_truth']['name'])
-
-if not os.path.exists(_master_truth_dir):
-    os.makedirs(_master_truth_dir)
-
-if not os.path.exists(_master_truth_file):
-    f = open(_master_truth_file, 'w+')  # open file in append mode
+if not os.path.exists(_config['master_truth_file']):
+    f = open(_config['master_truth_file'], 'w+')  # open file in append mode
     f.write('{}')
     f.close()
 
@@ -190,7 +163,7 @@ dataset = replay_buffer.as_dataset(
 iterator = iter(dataset)
 
 train_checkpointer = common.Checkpointer(
-    ckpt_dir=_checkpoint_policy_dir,
+    ckpt_dir=_config['checkpoint_policy_dir'],
     max_to_keep=1,
     agent=agent,
     policy=agent.policy,
@@ -204,7 +177,7 @@ restore_network = True
 
 if restore_network:
     train_checkpointer.initialize_or_restore()
-    f = open(_master_truth_file, "r")
+    f = open(_config['master_truth_file'], "r")
     eval_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
     f.close()
 
@@ -249,7 +222,7 @@ for _ in range(num_iterations):
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
     render_history()
   if step % _num_save_episodes == 0:
-    tf_policy_saver.save(_save_policy_dir)
+    tf_policy_saver.save(_config['save_policy_dir'])
     train_checkpointer.save(train_step_counter)
     #print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
     #f = open(_master_truth_file, "w")

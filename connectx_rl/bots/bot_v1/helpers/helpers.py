@@ -20,7 +20,7 @@ def load_configuration():
                                     _config['files']['policy']['save_policy']['dir'],
                                     _config['files']['policy']['save_policy']['name'])
 
-    config['_checkpoint_policy_dir'] = os.path.join(_config['files']['policy'][base_directory_key],
+    config['checkpoint_policy_dir'] = os.path.join(_config['files']['policy'][base_directory_key],
                                           _config['files']['policy']['checkpoint_policy']['dir'],
                                           _config['files']['policy']['checkpoint_policy']['name'])
 
@@ -30,6 +30,10 @@ def load_configuration():
     config['master_truth_file'] = os.path.join(_config['files']['policy'][base_directory_key],
                                       _config['files']['policy']['master_truth']['dir'],
                                       _config['files']['policy']['master_truth']['name'])
+
+    config['executable_bots_dir'] = os.path.join(_config['files']['policy'][base_directory_key],
+                                        _config['files']['policy']['executable_bots']['dir'])
+    return config
 
 
 def compute_avg_return(environment, policy, num_episodes=10):
