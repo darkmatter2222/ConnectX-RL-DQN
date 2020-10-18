@@ -1,13 +1,13 @@
 {
   "files": {
     "tensorboard_logs": {
-      "base_dir":  "N:\\ConnectX-RL-DQN",
+      "base_dir":  "\\\\SUSMANSERVER\\Active Server Drive\\ConnectX-RL-DQN",
       "SusmanServer-base_dir":  "E:\\ConnectX-RL-DQN",
       "RedComputer-base_dir":  "\\\\SUSMANSERVER\\Active Server Drive\\ConnectX-RL-DQN",
       "dir": "tensorboard"
     },
     "policy": {
-      "base_dir":  "N:\\ConnectX-RL-DQN",
+      "base_dir":  "\\\\SUSMANSERVER\\Active Server Drive\\ConnectX-RL-DQN",
       "SusmanServer-base_dir":  "E:\\ConnectX-RL-DQN",
       "RedComputer-base_dir":  "\\\\SUSMANSERVER\\Active Server Drive\\ConnectX-RL-DQN",
       "save_policy": {
