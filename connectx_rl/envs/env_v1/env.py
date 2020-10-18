@@ -34,6 +34,7 @@ _executable_bots_dir = os.path.join(_config['files']['policy'][base_directory_ke
                                     _config['files']['policy']['executable_bots']['dir'])
 
 sys.path.append(os.path.abspath(_executable_bots_dir))
+import submissionv4
 import submissionv5
 
 class env(py_environment.PyEnvironment):
@@ -133,6 +134,7 @@ class env(py_environment.PyEnvironment):
 
     def new_environment(self):
         self.environment = make("connectx")
+        self.environment.agents['submissionv4'] = submissionv4.my_agent
         self.environment.agents['submissionv5'] = submissionv5.my_agent
 
         self.chosen_enemy = random.choice(self.enemy)

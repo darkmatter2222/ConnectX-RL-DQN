@@ -1,3 +1,37 @@
+import os, json, socket
+
+def load_configuration():
+    # loading configuration...
+    print('loading configuration...')
+    _config = {}
+    with open('config.json') as f:
+        _config = json.load(f)
+
+    # build policy directories
+    host_name = socket.gethostname()
+    base_directory_key = 'base_dir'
+    target = f'{host_name}-base_dir'
+    if target in _config['files']['policy']:
+        base_directory_key = target
+
+    config = {}
+
+    config['save_policy_dir'] = os.path.join(_config['files']['policy'][base_directory_key],
+                                    _config['files']['policy']['save_policy']['dir'],
+                                    _config['files']['policy']['save_policy']['name'])
+
+    config['_checkpoint_policy_dir'] = os.path.join(_config['files']['policy'][base_directory_key],
+                                          _config['files']['policy']['checkpoint_policy']['dir'],
+                                          _config['files']['policy']['checkpoint_policy']['name'])
+
+    config['master_truth_dir'] = os.path.join(_config['files']['policy'][base_directory_key],
+                                     _config['files']['policy']['master_truth']['dir'])
+
+    config['master_truth_file'] = os.path.join(_config['files']['policy'][base_directory_key],
+                                      _config['files']['policy']['master_truth']['dir'],
+                                      _config['files']['policy']['master_truth']['name'])
+
+
 def compute_avg_return(environment, policy, num_episodes=10):
     total_return = 0.0
     results = {

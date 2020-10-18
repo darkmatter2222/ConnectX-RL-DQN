@@ -97,8 +97,8 @@ if not os.path.exists(_master_truth_file):
 
 # instantiate two environments. I personally don't feel this is necessary,
 # however google did it in their tutorial...
-_train_py_env = env(env_name='Training', enemy=['random', 'submissionv5'])
-_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv5'])
+_train_py_env = env(env_name='Training', enemy=['random', 'submissionv4', 'submissionv5'])
+_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5'])
 
 train_env = tf_py_environment.TFPyEnvironment(_train_py_env)
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
