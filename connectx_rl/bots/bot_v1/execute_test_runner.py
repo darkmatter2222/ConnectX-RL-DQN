@@ -53,14 +53,14 @@ log_interval = 200  # @param {type:"integer"}
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -1  # @param {type:"integer"}
 max_q_value = 24  # @param {type:"integer"}
-n_step_update = 2  # @param {type:"integer"}
+n_step_update = 4  # @param {type:"integer"}
 
 num_eval_episodes = 1000  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
 
 _num_save_episodes = 1000
 
-_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5'])
+_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6'])
 
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
 

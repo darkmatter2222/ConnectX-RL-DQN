@@ -24,6 +24,7 @@ _config = helpers.load_configuration()
 sys.path.append(os.path.abspath(_config['executable_bots_dir']))
 import submissionv4
 import submissionv5
+import submissionv6
 
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True, enemy=['random']):
@@ -124,6 +125,7 @@ class env(py_environment.PyEnvironment):
         self.environment = make("connectx")
         self.environment.agents['submissionv4'] = submissionv4.my_agent
         self.environment.agents['submissionv5'] = submissionv5.my_agent
+        self.environment.agents['submissionv6'] = submissionv6.my_agent
 
         self.chosen_enemy = random.choice(self.enemy)
 
