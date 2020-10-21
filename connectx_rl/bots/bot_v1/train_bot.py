@@ -50,7 +50,7 @@ log_interval = 200  # @param {type:"integer"}
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -1  # @param {type:"integer"}
 max_q_value = 24  # @param {type:"integer"}
-n_step_update = 4  # @param {type:"integer"}
+n_step_update = 8  # @param {type:"integer"}
 
 num_eval_episodes = 1000  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
@@ -70,8 +70,8 @@ if not os.path.exists(_config['master_truth_file']):
 
 # instantiate two environments. I personally don't feel this is necessary,
 # however google did it in their tutorial...
-_train_py_env = env(env_name='Training', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7'])
-_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7'])
+_train_py_env = env(env_name='Training', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7', 'submissionv8', 'submissionv9'])
+_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7', 'submissionv8', 'submissionv9'])
 
 train_env = tf_py_environment.TFPyEnvironment(_train_py_env)
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
