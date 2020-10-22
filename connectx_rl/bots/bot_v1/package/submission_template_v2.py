@@ -1,6 +1,7 @@
 import random
 import numpy as np
 
+master_truth_table = {REPLACEME}
 EMPTY= 0
 def is_win(board, column, mark, config, has_played=False):
     columns = config.columns
@@ -44,8 +45,14 @@ def is_win(board, column, mark, config, has_played=False):
         or (count(-1, 1) + count(1, -1)) >= inarow  # top right diagonal.
     )
 
+
 def my_agent(observation, configuration):
-    thischoice = random.choice([c for c in range(7) if observation.board[c] == 0])
+    obs = np.reshape(observation.board, (_board_width, _board_height)).T
+    if str(obs) in master_truth_table:
+        this_choice = master_truth_table[str(obs)]
+        #print('chosen')
+    else:
+        this_choice = choice([c for c in range(_board_width) if observation.board[c] == 0])
 
     my_mark = observation.mark
     enemy_mark = 1
@@ -62,5 +69,31 @@ def my_agent(observation, configuration):
         result = is_win(observation.board, _, enemy_mark, configuration)
         if result:
             return _
+
+    bad_list = []
+    highest_target = 0
+
+
+    for _ in range(6):
+        target = thischoice + (7 * _)
+        if observation.board[target] == 0:
+            highest_target = target
+
+    observation.board[highest_target] = my_mark
+    death = False
+    for _ in range(7):
+        death = is_win(observation.board, _, enemy_mark, configuration)
+        if death:
+            #print('future death detected')
+            bad_list.append(thischoice)
+            break
+
+    if death:
+        try:
+            thischoice = random.choice([c for c in range(7) if observation.board[c] == 0 and c not in bad_list])
+            #print('avoideable death')
+        except:
+            thischoice = random.choice([c for c in range(7) if observation.board[c] == 0])
+            #print('unavoidable death')
 
     return thischoice

@@ -65,6 +65,32 @@ def myagent(observation, configuration):
         if result:
             return _
 
+    bad_list = []
+    highest_target = 0
+
+
+    for _ in range(6):
+        target = thischoice + (7 * _)
+        if observation.board[target] == 0:
+            highest_target = target
+
+    observation.board[highest_target] = my_mark
+    death = False
+    for _ in range(7):
+        death = is_win(observation.board, _, enemy_mark, configuration)
+        if death:
+            #print('future death detected')
+            bad_list.append(thischoice)
+            break
+
+    if death:
+        try:
+            thischoice = random.choice([c for c in range(7) if observation.board[c] == 0 and c not in bad_list])
+            #print('avoideable death')
+        except:
+            thischoice = random.choice([c for c in range(7) if observation.board[c] == 0])
+            #print('unavoidable death')
+
     return thischoice
 
 
