@@ -47,12 +47,16 @@ def is_win(board, column, mark, config, has_played=False):
 
 
 def my_agent(observation, configuration):
+    this_choice = 0
+    _board_width = 7
+    _board_height = 6
+    
     obs = np.reshape(observation.board, (_board_width, _board_height)).T
     if str(obs) in master_truth_table:
         this_choice = master_truth_table[str(obs)]
         #print('chosen')
     else:
-        this_choice = choice([c for c in range(_board_width) if observation.board[c] == 0])
+        this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0])
 
     my_mark = observation.mark
     enemy_mark = 1
@@ -60,12 +64,12 @@ def my_agent(observation, configuration):
         enemy_mark = 2
 
     # is the a win for me?
-    for _ in range(7):
+    for _ in range(_board_width):
         result = is_win(observation.board, _, my_mark, configuration)
         if result:
             return _
     # can I block the enemy?
-    for _ in range(7):
+    for _ in range(_board_width):
         result = is_win(observation.board, _, enemy_mark, configuration)
         if result:
             return _
@@ -74,26 +78,26 @@ def my_agent(observation, configuration):
     highest_target = 0
 
 
-    for _ in range(6):
-        target = thischoice + (7 * _)
+    for _ in range(_board_height):
+        target = this_choice + (_board_width * _)
         if observation.board[target] == 0:
             highest_target = target
 
     observation.board[highest_target] = my_mark
     death = False
-    for _ in range(7):
+    for _ in range(_board_width):
         death = is_win(observation.board, _, enemy_mark, configuration)
         if death:
             #print('future death detected')
-            bad_list.append(thischoice)
+            bad_list.append(this_choice)
             break
 
     if death:
         try:
-            thischoice = random.choice([c for c in range(7) if observation.board[c] == 0 and c not in bad_list])
+            this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0 and c not in bad_list])
             #print('avoideable death')
         except:
-            thischoice = random.choice([c for c in range(7) if observation.board[c] == 0])
+            this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0])
             #print('unavoidable death')
 
-    return thischoice
+    return this_choice
