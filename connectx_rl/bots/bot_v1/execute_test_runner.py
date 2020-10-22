@@ -60,7 +60,7 @@ eval_interval = 1000  # @param {type:"integer"}
 
 _num_save_episodes = 1000
 
-_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7', 'submissionv8', 'submissionv9'])
+_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7', 'submissionv8', 'submissionv9', 'submissionv10'])
 
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
 

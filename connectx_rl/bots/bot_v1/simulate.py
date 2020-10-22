@@ -1,4 +1,6 @@
-master_truth_table = {REPLACEME}
+import os, json, socket
+from kaggle_environments import evaluate, make, utils
+import random
 
 EMPTY= 0
 def is_win(board, column, mark, config, has_played=False):
@@ -43,14 +45,10 @@ def is_win(board, column, mark, config, has_played=False):
         or (count(-1, 1) + count(1, -1)) >= inarow  # top right diagonal.
     )
 
-def my_agent(observation, configuration):
-    from random import choice
-    import numpy as np
-    
-    this_choice = 0
-    _board_width = 7
-    _board_height = 6
-    
+
+def myagent(observation, configuration):
+    thischoice = random.choice([c for c in range(7) if observation.board[c] == 0])
+
     my_mark = observation.mark
     enemy_mark = 1
     if my_mark == 1:
@@ -65,13 +63,59 @@ def my_agent(observation, configuration):
     for _ in range(7):
         result = is_win(observation.board, _, enemy_mark, configuration)
         if result:
-            return _   
+            return _
 
-    obs = np.reshape(observation.board, (_board_width, _board_height)).T
-    if str(obs) in master_truth_table:
-        this_choice = master_truth_table[str(obs)]
-        #print('chosen')
+    return thischoice
+
+
+results = {
+    'win': {
+        'first': 0,
+        'second': 0
+    },
+    'loss': {
+        'first': 0,
+        'second': 0
+    },
+    'tie': {
+        'first': 0,
+        'second': 0
+    }
+}
+
+for i in range(100):
+    env = make("connectx",debug = True)
+    env.reset()
+    if random.choice(range(2)) == 0:
+        env.run([myagent, "random"])
+        state_pos = 1
     else:
-        this_choice = choice([c for c in range(_board_width) if observation.board[c] == 0])
-        #print('random')
-    return this_choice
+        env.run(["random", myagent])
+        state_pos = 2
+    # Play as the first agent against default "random" agent.
+    win_flag = env.state[state_pos - 1].reward
+    if state_pos == 1:
+        if win_flag == 1:
+            results['win']['first'] += 1
+        elif win_flag == -1:
+            results['loss']['first'] += 1
+        else:
+            results['tie']['first'] += 1
+    elif state_pos == 2:
+        if win_flag == 1:
+            results['win']['second'] += 1
+        elif win_flag == -1:
+            results['loss']['second'] += 1
+        else:
+            results['tie']['second'] += 1
+
+    # env.render(mode="ipython", width=500, height=450)
+
+print(f'Eval Going First '
+      f'Wins:{results["win"]["first"]} '
+      f'Losss:{results["loss"]["first"]} '
+      f'Ties:{results["tie"]["first"]} '
+      f' Going Second '
+      f'Wins:{results["win"]["second"]} '
+      f'Losss:{results["loss"]["second"]} '
+      f'Ties:{results["tie"]["second"]} ')

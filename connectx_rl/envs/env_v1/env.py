@@ -28,6 +28,9 @@ import submissionv6
 import submissionv7
 import submissionv8
 import submissionv9
+import submissionv10
+
+
 
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True, enemy=['random']):
@@ -132,6 +135,7 @@ class env(py_environment.PyEnvironment):
         self.environment.agents['submissionv7'] = submissionv7.my_agent
         self.environment.agents['submissionv8'] = submissionv8.my_agent
         self.environment.agents['submissionv9'] = submissionv9.my_agent
+        self.environment.agents['submissionv10'] = submissionv10.my_agent
 
         self.chosen_enemy = random.choice(self.enemy)
 

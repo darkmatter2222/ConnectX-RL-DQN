@@ -1,4 +1,5 @@
-master_truth_table = {REPLACEME}
+import random
+import numpy as np
 
 EMPTY= 0
 def is_win(board, column, mark, config, has_played=False):
@@ -44,13 +45,8 @@ def is_win(board, column, mark, config, has_played=False):
     )
 
 def my_agent(observation, configuration):
-    from random import choice
-    import numpy as np
-    
-    this_choice = 0
-    _board_width = 7
-    _board_height = 6
-    
+    thischoice = random.choice([c for c in range(7) if observation.board[c] == 0])
+
     my_mark = observation.mark
     enemy_mark = 1
     if my_mark == 1:
@@ -65,13 +61,6 @@ def my_agent(observation, configuration):
     for _ in range(7):
         result = is_win(observation.board, _, enemy_mark, configuration)
         if result:
-            return _   
+            return _
 
-    obs = np.reshape(observation.board, (_board_width, _board_height)).T
-    if str(obs) in master_truth_table:
-        this_choice = master_truth_table[str(obs)]
-        #print('chosen')
-    else:
-        this_choice = choice([c for c in range(_board_width) if observation.board[c] == 0])
-        #print('random')
-    return this_choice
+    return thischoice
