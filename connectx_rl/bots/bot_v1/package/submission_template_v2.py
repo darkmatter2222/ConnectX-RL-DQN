@@ -47,6 +47,7 @@ def is_win(board, column, mark, config, has_played=False):
 
 
 def my_agent(observation, configuration):
+    logging = False
     this_choice = 0
     _board_width = 7
     _board_height = 6
@@ -54,10 +55,10 @@ def my_agent(observation, configuration):
     obs = np.reshape(observation.board, (_board_width, _board_height)).T
     if str(obs) in master_truth_table:
         this_choice = master_truth_table[str(obs)]
-        print('Brains')
+        if logging: print('Brains')
     else:
         this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0])
-        print('Brawn')
+        if logging: print('Brawn') 
 
     my_mark = observation.mark
     enemy_mark = 1
@@ -68,13 +69,13 @@ def my_agent(observation, configuration):
     for _ in range(_board_width):
         result = is_win(observation.board, _, my_mark, configuration)
         if result:
-            print('Attack')
+            if logging: print('Attack')
             return _
     # can I block the enemy?
     for _ in range(_board_width):
         result = is_win(observation.board, _, enemy_mark, configuration)
         if result:
-            print('Defend')
+            if logging: print('Defend')
             return _
 
     bad_list = []
@@ -91,16 +92,16 @@ def my_agent(observation, configuration):
     for _ in range(_board_width):
         death = is_win(observation.board, _, enemy_mark, configuration)
         if death:
-            print('future death detected')
+            if logging: print('future death detected')
             bad_list.append(this_choice)
             break
 
     if death:
         try:
             this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0 and c not in bad_list])
-            print('avoideable death')
+            if logging: print('avoideable death')
         except:
             this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0])
-            print('unavoidable death')
+            if logging: print('unavoidable death')
 
     return this_choice
