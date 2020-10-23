@@ -22,15 +22,7 @@ from connectx_rl.bots.bot_v1.helpers import helpers
 _config = helpers.load_configuration()
 
 sys.path.append(os.path.abspath(_config['executable_bots_dir']))
-import submissionv4
-import submissionv5
-import submissionv6
-import submissionv7
-import submissionv8
-import submissionv9
-import submissionv10
-
-
+import self_enemy
 
 class env(py_environment.PyEnvironment):
     def __init__(self, env_name, render_me=True, enemy=['random']):
@@ -114,7 +106,7 @@ class env(py_environment.PyEnvironment):
         # ===return to engine===
         if self.episode_ended:
             if reward == 1:
-                reward = 24 - self.step_count
+                #reward = 24 - self.step_count
                 if self.env_name == 'Testing':
                     for state in self.state_action_history:
                         self.master_truth_table[state] = self.state_action_history[state]
@@ -129,19 +121,16 @@ class env(py_environment.PyEnvironment):
 
     def new_environment(self):
         self.environment = make("connectx")
-        self.environment.agents['submissionv4'] = submissionv4.my_agent
-        self.environment.agents['submissionv5'] = submissionv5.my_agent
-        self.environment.agents['submissionv6'] = submissionv6.my_agent
-        self.environment.agents['submissionv7'] = submissionv7.my_agent
-        self.environment.agents['submissionv8'] = submissionv8.my_agent
-        self.environment.agents['submissionv9'] = submissionv9.my_agent
-        self.environment.agents['submissionv10'] = submissionv10.my_agent
+        self.environment.agents['self_enemy'] = self_enemy.my_agent
 
         self.chosen_enemy = random.choice(self.enemy)
 
-        if random.choice(range(3)) == 0:
+        if random.choice(range(2)) == 0:
             self.trainer = self.environment.train([None, self.chosen_enemy])
             self.state_pos = 0
         else:
             self.trainer = self.environment.train([self.chosen_enemy, None])
             self.state_pos = 1
+
+    def load_to_enemy(self, knowledge):
+        self.environment.agents['self_enemy'].master_truth_table = knowledge

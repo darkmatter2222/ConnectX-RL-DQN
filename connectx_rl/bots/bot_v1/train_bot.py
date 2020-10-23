@@ -35,22 +35,22 @@ num_iterations = 150000000 # @param {type:"integer"}
 
 initial_collect_steps = 100  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
-replay_buffer_capacity = 100000  # @param {type:"integer"}
+replay_buffer_capacity = 1000000  # @param {type:"integer"}
 
 reward_history = []
 loss_history = []
 
 fc_layer_params = (1000,)
 
-batch_size = 128  # @param {type:"integer"}
+batch_size = 512  # @param {type:"integer"}
 learning_rate = 1e-3  # @param {type:"number"}
 gamma = 0.99
 log_interval = 200  # @param {type:"integer"}
 
-num_atoms = 51  # @param {type:"integer"}
+num_atoms = 7  # @param {type:"integer"}
 min_q_value = -1  # @param {type:"integer"}
-max_q_value = 24  # @param {type:"integer"}
-n_step_update = 8  # @param {type:"integer"}
+max_q_value = 1  # @param {type:"integer"}
+n_step_update = 2  # @param {type:"integer"}
 
 num_eval_episodes = 1000  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
@@ -70,8 +70,8 @@ if not os.path.exists(_config['master_truth_file']):
 
 # instantiate two environments. I personally don't feel this is necessary,
 # however google did it in their tutorial...
-_train_py_env = env(env_name='Training', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7', 'submissionv8', 'submissionv9', 'submissionv10'])
-_eval_py_env = env(env_name='Testing', enemy=['random', 'submissionv4', 'submissionv5', 'submissionv6', 'submissionv7', 'submissionv8', 'submissionv9', 'submissionv10'])
+_train_py_env = env(env_name='Training', enemy=['random', 'self_enemy'])
+_eval_py_env = env(env_name='Testing', enemy=['random', 'self_enemy'])
 
 train_env = tf_py_environment.TFPyEnvironment(_train_py_env)
 eval_env = tf_py_environment.TFPyEnvironment(_eval_py_env)
@@ -177,9 +177,6 @@ restore_network = True
 
 if restore_network:
     train_checkpointer.initialize_or_restore()
-    f = open(_config['master_truth_file'], "r")
-    eval_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
-    f.close()
 
 # (Optional) Optimize by wrapping some of the code in a graph using TF function.
 agent.train = common.function(agent.train)
@@ -190,6 +187,17 @@ agent.train_step_counter.assign(0)
 # Evaluate the agent's policy once before training.
 avg_return = helpers.compute_avg_return(eval_env, agent.policy, num_eval_episodes)
 returns = [avg_return]
+
+if not os.path.exists(_config['master_truth_file']):
+    f = open(_config['master_truth_file'], 'w+')  # open file in append mode
+    f.write('{}')
+    f.close()
+else:
+    f = open(_config['master_truth_file'], 'r')  # open file in append mode
+    eval_env.pyenv._envs[0].master_truth_table = json.loads(f.read())
+    f.close()
+    eval_env.pyenv._envs[0].load_to_enemy(eval_env.pyenv._envs[0].master_truth_table)
+    train_env.pyenv._envs[0].load_to_enemy(eval_env.pyenv._envs[0].master_truth_table)
 
 for _ in range(num_iterations):
 
@@ -220,11 +228,13 @@ for _ in range(num_iterations):
           f' Enemy History '
           f'{enemy_history}')
     print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
+    print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
+    eval_env.pyenv._envs[0].load_to_enemy(eval_env.pyenv._envs[0].master_truth_table)
+    train_env.pyenv._envs[0].load_to_enemy(eval_env.pyenv._envs[0].master_truth_table)
+    f = open(_config['master_truth_file'], "w")
+    f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
+    f.close()
     render_history()
   if step % _num_save_episodes == 0:
     tf_policy_saver.save(_config['save_policy_dir'])
     train_checkpointer.save(train_step_counter)
-    #print(f'Saving truth table of length {len(eval_env.pyenv._envs[0].master_truth_table.keys())}')
-    #f = open(_master_truth_file, "w")
-    #f.write(json.dumps(eval_env.pyenv._envs[0].master_truth_table))
-    #f.close()
