@@ -54,9 +54,10 @@ def my_agent(observation, configuration):
     obs = np.reshape(observation.board, (_board_width, _board_height)).T
     if str(obs) in master_truth_table:
         this_choice = master_truth_table[str(obs)]
-        #print('chosen')
+        print('Brains')
     else:
         this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0])
+        print('Brawn')
 
     my_mark = observation.mark
     enemy_mark = 1
@@ -67,11 +68,13 @@ def my_agent(observation, configuration):
     for _ in range(_board_width):
         result = is_win(observation.board, _, my_mark, configuration)
         if result:
+            print('Attack')
             return _
     # can I block the enemy?
     for _ in range(_board_width):
         result = is_win(observation.board, _, enemy_mark, configuration)
         if result:
+            print('Defend')
             return _
 
     bad_list = []
@@ -88,16 +91,16 @@ def my_agent(observation, configuration):
     for _ in range(_board_width):
         death = is_win(observation.board, _, enemy_mark, configuration)
         if death:
-            #print('future death detected')
+            print('future death detected')
             bad_list.append(this_choice)
             break
 
     if death:
         try:
             this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0 and c not in bad_list])
-            #print('avoideable death')
+            print('avoideable death')
         except:
             this_choice = random.choice([c for c in range(_board_width) if observation.board[c] == 0])
-            #print('unavoidable death')
+            print('unavoidable death')
 
     return this_choice
